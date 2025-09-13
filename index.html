@@ -132,14 +132,14 @@
   /* Scoreboard/game list */
   .scoreboard { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .game-card { padding: 12px; border-radius: 12px; }
-  .game-card .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+  .game-card .teams { gap: 8px; align-items: center; }
   .game-card .team { display:flex; align-items:center; gap: 8px; }
   .game-card .team .logo { width: 28px; height: 28px; }
   .game-card .team .team-name { font-size: .95rem; word-break: break-word; }
   .game-card .score { font-size: 1.2rem; text-align: center; }
 
   /* Winner chooser */
-  .choose-winner { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .choose-winner {  gap: 8px; margin-top: 10px; }
   .choose-winner button { width: 100%; padding: 10px 8px; border-radius: 10px; font-size: .95rem; }
   .draw-btn { grid-column: 1 / -1; } /* if draw is a single centered button, span full width */
 
