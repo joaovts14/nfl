@@ -138,7 +138,7 @@ document.getElementById("nextWeek").addEventListener("click", () => {
  *  3) Atualiza memória local 'pending[currentWeek]' se existir
  */
 
-function applySavedPicks(rows) {
+async function applySavedPicks(rows) {
   if (!Array.isArray(rows)) return;
 
   rows.forEach(row => {
@@ -192,8 +192,8 @@ async function fetchSavedAndApply() {
     const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    applySavedPicks(data);
-    evaluateAll();
+    await applySavedPicks(data);
+    await evaluateAll();
   } catch (e) {
     console.error("Falha ao buscar/aplicar palpites salvos:", e);
   }
@@ -241,7 +241,7 @@ function evaluateCard(card) {
   }
 }
 
-function evaluateAll() {
+async function evaluateAll() {
   document.querySelectorAll(".game-card").forEach(evaluateCard);
 }
 
