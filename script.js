@@ -412,7 +412,7 @@ async function buildGlobalScoreboard() {
 
     if (out) out.innerHTML = parts.join("");
     if (loader) loader.style.display = "none";
-    if (meta) meta.textContent = consideredWeeks > 0 ? `${consideredWeeks} semana(s) consideradas • ${totalGamesCount} jogos finalizados` : "";
+    if (meta) meta.textContent = consideredWeeks > 0 ? `${consideredWeeks} semana(s) consideradas` : "";
   } catch (e) {
     console.error("Falha ao montar placar geral:", e);
     document.getElementById("globalScoreContent").innerHTML = `<p style="text-align:center;color:#f66;">Erro ao carregar placar geral.</p>`;
