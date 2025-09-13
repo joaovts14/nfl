@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NFL Scoreboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#111; color:#fff; margin:0; padding:20px; }
+    h1 { text-align:center; margin-bottom:20px; color:#ffcc00; }
+    #userSelect { text-align:center; margin-top:100px; }
+    #userSelect button { background:#ffcc00; border:none; color:#111; font-weight:bold; padding:15px 25px; margin:10px; border-radius:8px; cursor:pointer; font-size:1.2rem; }
+    #userSelect button:hover { background:#e6b800; }
+    #mainApp { display:none; }
+    .week-nav { text-align:center; margin-bottom:20px; }
+    .week-nav button { background:#ffcc00; border:none; color:#111; font-weight:bold; padding:10px 18px; margin:0 10px; border-radius:6px; cursor:pointer; font-size:1rem; }
+    .week-nav button:hover { background:#e6b800; }
+    .tag { font-size:.85rem; color:#ddd; margin-left:6px; opacity:.8; }
+    .scoreboard { display:grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap:20px; }
+    .game-card { background:#222; border-radius:12px; padding:20px; box-shadow:0 4px 8px rgba(0,0,0,.5); }
+    .teams { display:flex; align-items:center; justify-content:space-between; }
+    .team { display:flex; align-items:center; gap:10px; flex:1; padding:5px; border-radius:6px; }
+    .team img { width:50px; height:50px; }
+    .score { font-size:1.5rem; font-weight:bold; }
+    .status { margin-top:10px; font-size:.9rem; color:#bbb; text-align:center; }
+    .winner { background:rgba(0,255,0,.2); border:2px solid #00ff00; }
+    .draw { background:rgba(0,191,255,.2); border:2px solid #00bfff; }
+    .choose-winner { margin-top:15px; display:flex; justify-content:space-between; align-items:center; }
+    .choose-winner button { padding:10px 18px; background:#444; border:1px solid #777; border-radius:6px; cursor:pointer; color:#fff; font-size:.95rem; min-width:90px; }
+    .choose-winner button:hover { background:#666; }
+    .choose-winner .draw-btn { flex:1; text-align:center; margin:0 10px; }
+  </style>
+  <script defer src="./script.js"></script>
+</head>
+<body>
+  <h1>🏈 NFL Scoreboard</h1>
+  <div id="userSelect">
+    <h2>Escolha seu usuário:</h2>
+    <button onclick="selectUser('Rafael')">Rafael</button>
+    <button onclick="selectUser('Leone')">Leone</button>
+    <button onclick="selectUser('João')">João</button>
+  </div>
+  <div id="mainApp">
+    <div class="week-nav">
+      <button id="prevWeek">⬅️ Semana Anterior</button>
+      <span id="weekLabel">Semana 1 <span id="whoTag" class="tag"></span></span>
+      <button id="nextWeek">Próxima Semana ➡️</button>
+      <button id="save">💾 Salvar</button>
+    </div>
+    <div id="scoreboard" class="scoreboard"></div>
+  </div>
+</body>
+</html>

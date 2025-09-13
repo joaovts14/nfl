@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+const { Pool } = require("pg");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -11,12 +11,12 @@ function cors(res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   cors(res);
   if (req.method === "OPTIONS") return res.status(200).end();
 
   if (req.method === "GET") {
-    const week = parseInt(req.query.week || "0", 10);
+    const week = parseInt((req.query && req.query.week) || "0", 10);
     if (!week) return res.status(400).json({ error: "week obrigatório" });
     try {
       const { rows } = await pool.query(
@@ -69,6 +69,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ error: "method_not_allowed" });
-}
-
-export const config = { api: { bodyParser: { sizeLimit: "1mb" } } };
+};
