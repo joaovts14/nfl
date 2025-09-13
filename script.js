@@ -245,3 +245,83 @@ async function evaluateAll() {
   document.querySelectorAll(".game-card").forEach(evaluateCard);
 }
 
+async function buildScoreboard() {
+  try {
+    document.getElementById("scoreWeek").textContent = String(currentWeek);
+
+    // 1) Resultados finais (ESPN)
+    const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${currentWeek}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const resultMap = new Map(); // gameId -> "Empate" | teamName
+    (data.events || []).forEach(event => {
+      const comp = event.competitions?.[0];
+      if (!comp) return;
+      const teams = (comp.competitors || []).sort((a,b)=> a.homeAway === "home" ? 1 : -1);
+      const hs = parseInt(teams?.[0]?.score || "-1", 10);
+      const as = parseInt(teams?.[1]?.score || "-1", 10);
+      const st = comp?.status?.type || {};
+      const isFinal = !!(st.completed || st.state === "post" || /final/i.test(st.description||"") || /final/i.test(st.detail||""));
+
+      if (isFinal && !Number.isNaN(hs) && !Number.isNaN(as)) {
+        let actual = null;
+        if (hs === as) actual = "Empate";
+        else actual = (hs > as) ? teams?.[0]?.team?.displayName : teams?.[1]?.team?.displayName;
+        if (actual) resultMap.set(String(event.id), actual);
+      }
+    });
+
+    // 2) Picks da semana (todos usuários)
+    const res2 = await fetch(`${API_BASE}?week=${encodeURIComponent(currentWeek)}`);
+    if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+    const rows = await res2.json(); // [{week, game_id, user, pick, ...}]
+
+    // 3) Pontuação (1 ponto por acerto)
+    const scores = new Map(); // user -> pts
+    (rows || []).forEach(r => {
+      const actual = resultMap.get(String(r.game_id));
+      if (!scores.has(r.user)) scores.set(r.user, 0);
+      if (actual && r.pick === actual) {
+        scores.set(r.user, scores.get(r.user) + 1);
+      }
+    });
+
+    const arr = Array.from(scores.entries()).map(([user, pts]) => ({ user, pts }));
+    arr.sort((a,b)=> b.pts - a.pts || a.user.localeCompare(b.user));
+
+    const parts = [];
+    parts.push(`<table style="width:100%;border-collapse:collapse;">`);
+    parts.push(`<thead><tr><th style="text-align:left;padding:8px;border-bottom:1px solid #333;">Jogador</th><th style="text-align:right;padding:8px;border-bottom:1px solid #333;">Pontos</th></tr></thead><tbody>`);
+    if (arr.length === 0) {
+      parts.push('<tr><td colspan="2" style="padding:12px;text-align:center;opacity:.8;">Sem jogos finalizados ou palpites nesta semana.</td></tr>');
+    } else {
+      arr.forEach(({user, pts}) => {
+        parts.push(`<tr><td style="padding:8px;border-bottom:1px solid #222;">${user}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #222;">${pts}</td></tr>`);
+      });
+    }
+    parts.push(`</tbody></table>`);
+    document.getElementById("scoreContent").innerHTML = parts.join("");
+
+  } catch (e) {
+    console.error("Falha ao montar placar:", e);
+    document.getElementById("scoreContent").innerHTML = `<p style="text-align:center;color:#f66;">Erro ao carregar placar.</p>`;
+  }
+}
+
+async function openScores() {
+  await buildScoreboard();
+  const sb = document.getElementById("scoreboard");
+  const sv = document.getElementById("scoreView");
+  if (sb && sv) { sb.style.display = "none"; sv.style.display = "block"; }
+}
+function closeScores() {
+  const sb = document.getElementById("scoreboard");
+  const sv = document.getElementById("scoreView");
+  if (sb && sv) { sv.style.display = "none"; sb.style.display = "block"; }
+}
+
+
+document.getElementById("openScores")?.addEventListener("click", openScores);
+document.getElementById("backToGames")?.addEventListener("click", closeScores);
