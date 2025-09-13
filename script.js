@@ -96,12 +96,18 @@ function setWinner(gameId, teamName, btn) {
   const card = btn.closest(".game-card");
   const isHome = card.querySelector(".home .team-name").textContent === teamName;
   highlight(card, isHome ? "home" : "away");
+  const btns = card.querySelectorAll('.choose-winner button');
+  btns.forEach(b=>b.classList.remove('selected'));
+  (isHome ? btns[0] : btns[btns.length-1])?.classList.add('selected');
   savePick(gameId, teamName);
 }
 
 function setDraw(gameId, btn) {
   const card = btn.closest(".game-card");
   highlight(card, "draw");
+  const btns = card.querySelectorAll('.choose-winner button');
+  btns.forEach(b=>b.classList.remove('selected'));
+  card.querySelector('.draw-btn button')?.classList.add('selected');
   savePick(gameId, "Empate");
 }
 
@@ -195,3 +201,56 @@ function applySavedPicks(rows) {
 
 
 document.getElementById("viewSaved")?.addEventListener("click", viewSaved);
+
+
+function applySavedPicks(rows) {
+  if (!Array.isArray(rows)) return;
+  if (!pending[currentWeek]) pending[currentWeek] = {};
+
+  rows.forEach(row => {
+    const gameId = String(row.game_id);
+    const pick = String(row.pick);
+    const card = document.querySelector(`.game-card[data-game-id="${CSS.escape(gameId)}"]`);
+    if (!card) {
+      console.warn("Não encontrei card para game_id:", gameId);
+      return;
+    }
+
+    const homeName = card.querySelector(".home .team-name")?.textContent?.trim();
+    const awayName = card.querySelector(".away .team-name")?.textContent?.trim();
+    const homeBtn = card.querySelector(".choose-winner button:nth-child(1)");
+    const drawBtn = card.querySelector(".choose-winner .draw-btn button");
+    const awayBtn = card.querySelector(".choose-winner button:last-child");
+
+    // limpeza visual
+    [homeBtn, drawBtn, awayBtn].forEach(b => b && b.classList.remove("selected"));
+
+    if (pick.toLowerCase() === "empate" || pick.toLowerCase() === "draw") {
+      highlight(card, "draw");
+      drawBtn && drawBtn.classList.add("selected");
+      pending[currentWeek][gameId] = { pick: "Empate", user: currentUser };
+    } else if (homeName && pick === homeName) {
+      highlight(card, "home");
+      homeBtn && homeBtn.classList.add("selected");
+      pending[currentWeek][gameId] = { pick: homeName, user: currentUser };
+    } else if (awayName && pick === awayName) {
+      highlight(card, "away");
+      awayBtn && awayBtn.classList.add("selected");
+      pending[currentWeek][gameId] = { pick: awayName, user: currentUser };
+    } else {
+      // fallback: tenta por abreviação nos botões
+      if (homeBtn && homeBtn.textContent.trim() === pick) {
+        highlight(card, "home");
+        homeBtn.classList.add("selected");
+        pending[currentWeek][gameId] = { pick: homeName || pick, user: currentUser };
+      } else if (awayBtn && awayBtn.textContent.trim() === pick) {
+        highlight(card, "away");
+        awayBtn.classList.add("selected");
+        pending[currentWeek][gameId] = { pick: awayName || pick, user: currentUser };
+      } else {
+        console.warn("Pick não corresponde a nomes/abrev. deste card:", gameId, pick, {homeName, awayName});
+      }
+    }
+  });
+}
+
