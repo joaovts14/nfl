@@ -1,3 +1,4 @@
+// /api/picks.js - Serverless Function (Node - CommonJS)
 const { Pool } = require("pg");
 
 const pool = new Pool({

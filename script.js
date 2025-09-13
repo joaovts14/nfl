@@ -1,3 +1,4 @@
+/* Front-end completo */
 const API_BASE = "/api/picks";
 let currentWeek = 1;
 let currentUser = null;

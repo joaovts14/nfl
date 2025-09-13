@@ -1,0 +1,7 @@
+{
+  "routes": [
+    { "src": "^/api/picks$", "dest": "/api/picks.js" },
+    { "src": "^/api/hello$", "dest": "/api/hello.js" },
+    { "src": "^(?!/api/).*$", "dest": "/index.html" }
+  ]
+}
