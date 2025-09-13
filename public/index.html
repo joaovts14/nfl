@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>NFL Scoreboard</title>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <h1>🏈 NFL Scoreboard</h1>
+  <div id="userSelect">
+    <h2>Escolha seu usuário:</h2>
+    <button onclick="selectUser('Rafael')">Rafael</button>
+    <button onclick="selectUser('Leone')">Leone</button>
+    <button onclick="selectUser('João')">João</button>
+  </div>
+  <div id="mainApp" style="display:none;">
+    <div class="week-nav">
+      <button id="prevWeek">⬅️ Semana Anterior</button>
+      <span id="weekLabel">Semana 1</span>
+      <button id="nextWeek">Próxima Semana ➡️</button>
+      <button id="save">💾 Salvar</button>
+    </div>
+    <div id="scoreboard"></div>
+  </div>
+</body>
+</html>

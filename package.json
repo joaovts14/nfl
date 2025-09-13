@@ -1,0 +1,14 @@
+{
+  "name": "nfl-picks-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "start": "vercel start"
+  },
+  "dependencies": {
+    "pg": "^8.11.0"
+  }
+}
