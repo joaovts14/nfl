@@ -58,6 +58,9 @@
     <button onclick="selectUser('Rafael')">Rafael</button>
     <button onclick="selectUser('Leone')">Leone</button>
     <button onclick="selectUser('João')">João</button>
+    <div style="margin-top:20px;">
+      <button id="openGlobalScores">📊 Placar Geral</button>
+    </div>
   </div>
   <div id="mainApp">
     <div class="week-nav">
@@ -65,7 +68,6 @@
       <button id="prevWeek">⬅️ Semana Anterior</button>
       <span id="weekLabel">Semana 1 <span id="whoTag" class="tag"></span></span>
       <button id="nextWeek">Próxima Semana ➡️</button>
-      <button id="openScores">📊 Placar</button>
     </div>
     <div id="scoreboard" class="scoreboard"></div>
     <div id="scoreView" style="display:none; max-width:720px; margin:20px auto;">
@@ -74,6 +76,14 @@
       <div style="text-align:center;margin-top:16px;">
         <button id="backToGames">↩️ Voltar aos Jogos</button>
       </div>
+    </div>
+  </div>
+
+  <div id="globalScoreView" style="display:none; max-width:720px; margin:20px auto;">
+    <h2 style="text-align:center;">Placar Geral</h2>
+    <div id="globalScoreContent" style="margin-top:10px;"></div>
+    <div style="text-align:center;margin-top:16px;">
+      <button id="backToHome">↩️ Voltar</button>
     </div>
   </div>
 </body>

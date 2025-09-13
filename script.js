@@ -325,3 +325,103 @@ function closeScores() {
 
 document.getElementById("openScores")?.addEventListener("click", openScores);
 document.getElementById("backToGames")?.addEventListener("click", closeScores);
+
+async function fetchWeekResults(week) {
+  const url = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${week}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`ESPN HTTP ${res.status}`);
+  const data = await res.json();
+  const map = new Map(); // gameId -> "Empate" | teamName
+  (data.events || []).forEach(event => {
+    const comp = event.competitions?.[0];
+    if (!comp) return;
+    const teams = (comp.competitors || []).sort((a,b)=> a.homeAway === "home" ? 1 : -1);
+    const hs = parseInt(teams?.[0]?.score || "-1", 10);
+    const as = parseInt(teams?.[1]?.score || "-1", 10);
+    const st = comp?.status?.type || {};
+    const isFinal = !!(st.completed || st.state === "post" || /final/i.test(st.description||"") || /final/i.test(st.detail||""));
+    if (isFinal && !Number.isNaN(hs) && !Number.isNaN(as)) {
+      let actual = null;
+      if (hs === as) actual = "Empate";
+      else actual = (hs > as) ? teams?.[0]?.team?.displayName : teams?.[1]?.team?.displayName;
+      if (actual) map.set(String(event.id), actual);
+    }
+  });
+  return map;
+}
+
+async function fetchWeekPicks(week) {
+  const res = await fetch(`${API_BASE}?week=${encodeURIComponent(week)}`);
+  if (!res.ok) throw new Error(`API HTTP ${res.status}`);
+  return await res.json(); // [{week, game_id, user, pick,...}]
+}
+
+async function buildGlobalScoreboard() {
+  try {
+    // Range de semanas (regular + possivel pós-temporada). Ajuste se necessário.
+    const WEEKS = Array.from({length: 22}, (_,i)=> i+1);
+    const scores = new Map(); // user -> pts
+
+    for (const w of WEEKS) {
+      // Busca picks da semana w
+      let rows = [];
+      try {
+        rows = await fetchWeekPicks(w);
+      } catch (e) {
+        // Se a API retornar 400 para semanas sem dados, apenas continue
+        continue;
+      }
+      if (!rows || rows.length === 0) continue;
+
+      // Mapa de resultados finais para a semana w
+      const resultMap = await fetchWeekResults(w);
+
+      // Acumula
+      rows.forEach(r => {
+        const actual = resultMap.get(String(r.game_id));
+        if (!scores.has(r.user)) scores.set(r.user, 0);
+        if (actual && r.pick === actual) {
+          scores.set(r.user, scores.get(r.user) + 1);
+        }
+      });
+    }
+
+    // Render
+    const arr = Array.from(scores.entries()).map(([user, pts]) => ({ user, pts }));
+    arr.sort((a,b)=> b.pts - a.pts || a.user.localeCompare(b.user));
+
+    const parts = [];
+    parts.push(`<table style="width:100%;border-collapse:collapse;">`);
+    parts.push(`<thead><tr><th style="text-align:left;padding:8px;border-bottom:1px solid #333;">Jogador</th><th style="text-align:right;padding:8px;border-bottom:1px solid #333;">Total</th></tr></thead><tbody>`);
+    if (arr.length === 0) {
+      parts.push('<tr><td colspan="2" style="padding:12px;text-align:center;opacity:.8;">Sem dados para calcular o placar geral.</td></tr>');
+    } else {
+      arr.forEach(({user, pts}) => {
+        parts.push(`<tr><td style="padding:8px;border-bottom:1px solid #222;">${user}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #222;">${pts}</td></tr>`);
+      });
+    }
+    parts.push(`</tbody></table>`);
+    document.getElementById("globalScoreContent").innerHTML = parts.join("");
+
+  } catch (e) {
+    console.error("Falha ao montar placar geral:", e);
+    document.getElementById("globalScoreContent").innerHTML = `<p style="text-align:center;color:#f66;">Erro ao carregar placar geral.</p>`;
+  }
+}
+
+async function openGlobalScores() {
+  await buildGlobalScoreboard();
+  // esconder telas
+  document.getElementById("userSelect").style.display = "none";
+  const sv = document.getElementById("globalScoreView");
+  if (sv) sv.style.display = "block";
+}
+function backToHome() {
+  const sv = document.getElementById("globalScoreView");
+  if (sv) sv.style.display = "none";
+  document.getElementById("userSelect").style.display = "block";
+}
+
+
+document.getElementById("openGlobalScores")?.addEventListener("click", openGlobalScores);
+document.getElementById("backToHome")?.addEventListener("click", backToHome);
