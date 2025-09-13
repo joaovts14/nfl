@@ -358,51 +358,61 @@ async function fetchWeekPicks(week) {
 
 async function buildGlobalScoreboard() {
   try {
-    // Range de semanas (regular + possivel pós-temporada). Ajuste se necessário.
+    const meta = document.getElementById("globalMeta");
+    const loader = document.getElementById("globalLoader");
+    const out = document.getElementById("globalScoreContent");
+    if (out) out.innerHTML = "";
+    if (loader) loader.style.display = "flex";
+    if (meta) meta.textContent = "";
+
+    // === original logic (weeks loop + scoring) ===
+    // Range de semanas (regular + possível pós-temporada). Ajuste se necessário.
     const WEEKS = Array.from({length: 22}, (_,i)=> i+1);
     const scores = new Map(); // user -> pts
+    let consideredWeeks = 0;
+    let totalGamesCount = 0;
 
     for (const w of WEEKS) {
-      // Busca picks da semana w
       let rows = [];
       try {
         rows = await fetchWeekPicks(w);
-      } catch (e) {
-        // Se a API retornar 400 para semanas sem dados, apenas continue
-        continue;
-      }
+      } catch (e) { continue; }
       if (!rows || rows.length === 0) continue;
 
-      // Mapa de resultados finais para a semana w
       const resultMap = await fetchWeekResults(w);
+      if (resultMap.size === 0) continue;
+      consideredWeeks++;
 
-      // Acumula
       rows.forEach(r => {
         const actual = resultMap.get(String(r.game_id));
         if (!scores.has(r.user)) scores.set(r.user, 0);
+        if (actual) totalGamesCount++;
         if (actual && r.pick === actual) {
           scores.set(r.user, scores.get(r.user) + 1);
         }
       });
     }
 
-    // Render
     const arr = Array.from(scores.entries()).map(([user, pts]) => ({ user, pts }));
     arr.sort((a,b)=> b.pts - a.pts || a.user.localeCompare(b.user));
 
     const parts = [];
-    parts.push(`<table style="width:100%;border-collapse:collapse;">`);
-    parts.push(`<thead><tr><th style="text-align:left;padding:8px;border-bottom:1px solid #333;">Jogador</th><th style="text-align:right;padding:8px;border-bottom:1px solid #333;">Total</th></tr></thead><tbody>`);
+    parts.push(`<table class="rank-table">`);
+    parts.push(`<thead><tr><th></th><th>Jogador</th><th class="pts">Total</th></tr></thead><tbody>`);
     if (arr.length === 0) {
-      parts.push('<tr><td colspan="2" style="padding:12px;text-align:center;opacity:.8;">Sem dados para calcular o placar geral.</td></tr>');
+      parts.push('<tr><td colspan="3" style="padding:12px;text-align:center;opacity:.8;">Sem dados para calcular o placar geral.</td></tr>');
     } else {
-      arr.forEach(({user, pts}) => {
-        parts.push(`<tr><td style="padding:8px;border-bottom:1px solid #222;">${user}</td><td style="padding:8px;text-align:right;border-bottom:1px solid #222;">${pts}</td></tr>`);
+      arr.forEach(({user, pts}, idx) => {
+        const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "";
+        const trClass = idx === 0 ? "row-top-1" : idx === 1 ? "row-top-2" : idx === 2 ? "row-top-3" : "";
+        parts.push(`<tr class="${trClass}"><td class="medal">${medal}</td><td>${user}</td><td class="pts">${pts}</td></tr>`);
       });
     }
     parts.push(`</tbody></table>`);
-    document.getElementById("globalScoreContent").innerHTML = parts.join("");
 
+    if (out) out.innerHTML = parts.join("");
+    if (loader) loader.style.display = "none";
+    if (meta) meta.textContent = consideredWeeks > 0 ? \`\${consideredWeeks} semana(s) consideradas • \${totalGamesCount} jogos finalizados\` : "";
   } catch (e) {
     console.error("Falha ao montar placar geral:", e);
     document.getElementById("globalScoreContent").innerHTML = `<p style="text-align:center;color:#f66;">Erro ao carregar placar geral.</p>`;
@@ -410,11 +420,19 @@ async function buildGlobalScoreboard() {
 }
 
 async function openGlobalScores() {
-  await buildGlobalScoreboard();
-  // esconder telas
+  // trocar de tela
   document.getElementById("userSelect").style.display = "none";
   const sv = document.getElementById("globalScoreView");
   if (sv) sv.style.display = "block";
+
+  // mostrar loader e limpar conteúdo
+  const loader = document.getElementById("globalLoader");
+  const out = document.getElementById("globalScoreContent");
+  if (out) out.innerHTML = "";
+  if (loader) loader.style.display = "flex";
+
+  // montar placar
+  await buildGlobalScoreboard();
 }
 function backToHome() {
   const sv = document.getElementById("globalScoreView");
