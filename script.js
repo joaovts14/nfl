@@ -136,6 +136,7 @@ document.getElementById("save").addEventListener("click", async () => {
 });
 
 // === Ver salvos: busca no backend e imprime no console ===
+
 async function viewSaved() {
   if (!currentUser) {
     console.warn("Nenhum usuário selecionado.");
@@ -146,10 +147,51 @@ async function viewSaved() {
     const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    console.log("📦 Dados salvos para", { user: currentUser, week: currentWeek }, data);
+    applySavedPicks(data);
   } catch (e) {
     console.error("Falha ao buscar salvos:", e);
   }
 }
+
+/**
+ * Aplica picks salvos nos cards da UI.
+ * Estratégias de compatibilidade:
+ *  1) Radios com name="pick-<game_id>" e value="<pick>"
+ *  2) Botões/opções dentro de um card com [data-game-id="<game_id>"] e [data-value="<pick>"]
+ *  3) Atualiza memória local 'pending[currentWeek]' se existir
+ */
+function applySavedPicks(rows) {
+  if (!Array.isArray(rows)) return;
+  if (!pending[currentWeek]) pending[currentWeek] = {};
+
+  rows.forEach(row => {
+    const gameId = String(row.game_id);
+    const pick = String(row.pick);
+
+    // 1) radios
+    let radio = document.querySelector(`input[type="radio"][name="pick-${CSS.escape(gameId)}"][value="${CSS.escape(pick)}"]`);
+    if (radio) {
+      radio.checked = true;
+      // dispare change para outros handlers existentes
+      radio.dispatchEvent(new Event("change", { bubbles: true }));
+    } else {
+      // 2) elementos clicáveis com data-value
+      const opt = document.querySelector(`[data-game-id="${CSS.escape(gameId)}"] [data-value="${CSS.escape(pick)}"]`);
+      if (opt) {
+        // marca visualmente
+        opt.classList.add("selected");
+        // desmarca irmãos se for toggle
+        const sibs = opt.parentElement?.querySelectorAll('[data-value]');
+        if (sibs) sibs.forEach(el => { if (el !== opt) el.classList.remove("selected"); });
+      } else {
+        console.warn("Não encontrei controles para game_id:", gameId);
+      }
+    }
+
+    // 3) memória local
+    pending[currentWeek][gameId] = pick;
+  });
+}
+
 
 document.getElementById("viewSaved")?.addEventListener("click", viewSaved);
