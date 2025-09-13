@@ -3,12 +3,14 @@ const API_BASE = "/api/picks";
 let currentWeek = 1;
 let currentUser = null;
 const pending = {};
+function resetPendingAll(){ for (const k in pending) delete pending[k]; }
 
 function selectUser(user) {
   currentUser = user;
   document.getElementById("userSelect").style.display = "none";
   document.getElementById("mainApp").style.display = "block";
   document.getElementById("whoTag").textContent = `• Usuário: ${currentUser}`;
+  resetPendingAll();
   loadData();
 }
 
@@ -115,10 +117,10 @@ function setDraw(gameId, btn) {
 }
 
 document.getElementById("prevWeek").addEventListener("click", () => {
-  if (currentWeek > 1) { currentWeek--; loadData(); }
+  if (currentWeek > 1) { currentWeek--; pending[currentWeek] = {}; loadData(); }
 });
 document.getElementById("nextWeek").addEventListener("click", () => {
-  currentWeek++; loadData();
+  currentWeek++; pending[currentWeek] = {}; loadData();
 });
 document.getElementById("save").addEventListener("click", async () => {
   const pack = pending[currentWeek] || {};
@@ -146,21 +148,6 @@ document.getElementById("save").addEventListener("click", async () => {
 
 // === Ver salvos: busca no backend e imprime no console ===
 
-async function viewSaved() {
-  if (!currentUser) {
-    console.warn("Nenhum usuário selecionado.");
-    return;
-  }
-  try {
-    const url = `${API_BASE}?week=${encodeURIComponent(currentWeek)}&user=${encodeURIComponent(currentUser)}`;
-    const res = await fetch(url, { method: "GET" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    applySavedPicks(data);
-  } catch (e) {
-    console.error("Falha ao buscar salvos:", e);
-  }
-}
 
 /**
  * Aplica picks salvos nos cards da UI.
@@ -169,46 +156,9 @@ async function viewSaved() {
  *  2) Botões/opções dentro de um card com [data-game-id="<game_id>"] e [data-value="<pick>"]
  *  3) Atualiza memória local 'pending[currentWeek]' se existir
  */
-function applySavedPicks(rows) {
-  if (!Array.isArray(rows)) return;
-  if (!pending[currentWeek]) pending[currentWeek] = {};
-
-  rows.forEach(row => {
-    const gameId = String(row.game_id);
-    const pick = String(row.pick);
-
-    // 1) radios
-    let radio = document.querySelector(`input[type="radio"][name="pick-${CSS.escape(gameId)}"][value="${CSS.escape(pick)}"]`);
-    if (radio) {
-      radio.checked = true;
-      // dispare change para outros handlers existentes
-      radio.dispatchEvent(new Event("change", { bubbles: true }));
-    } else {
-      // 2) elementos clicáveis com data-value
-      const opt = document.querySelector(`[data-game-id="${CSS.escape(gameId)}"] [data-value="${CSS.escape(pick)}"]`);
-      if (opt) {
-        // marca visualmente
-        opt.classList.add("selected");
-        // desmarca irmãos se for toggle
-        const sibs = opt.parentElement?.querySelectorAll('[data-value]');
-        if (sibs) sibs.forEach(el => { if (el !== opt) el.classList.remove("selected"); });
-      } else {
-        console.warn("Não encontrei controles para game_id:", gameId);
-      }
-    }
-
-    // 3) memória local
-    pending[currentWeek][gameId] = pick;
-  });
-}
-
-
-document.getElementById("viewSaved")?.addEventListener("click", viewSaved);
-
 
 function applySavedPicks(rows) {
   if (!Array.isArray(rows)) return;
-  if (!pending[currentWeek]) pending[currentWeek] = {};
 
   rows.forEach(row => {
     const gameId = String(row.game_id);
@@ -231,31 +181,28 @@ function applySavedPicks(rows) {
     if (pick.toLowerCase() === "empate" || pick.toLowerCase() === "draw") {
       highlight(card, "draw");
       drawBtn && drawBtn.classList.add("selected");
-      pending[currentWeek][gameId] = { pick: "Empate", user: currentUser };
     } else if (homeName && pick === homeName) {
       highlight(card, "home");
       homeBtn && homeBtn.classList.add("selected");
-      pending[currentWeek][gameId] = { pick: homeName, user: currentUser };
     } else if (awayName && pick === awayName) {
       highlight(card, "away");
       awayBtn && awayBtn.classList.add("selected");
-      pending[currentWeek][gameId] = { pick: awayName, user: currentUser };
     } else {
       // fallback: tenta por abreviação nos botões
       if (homeBtn && homeBtn.textContent.trim() === pick) {
         highlight(card, "home");
         homeBtn.classList.add("selected");
-        pending[currentWeek][gameId] = { pick: homeName || pick, user: currentUser };
       } else if (awayBtn && awayBtn.textContent.trim() === pick) {
         highlight(card, "away");
         awayBtn.classList.add("selected");
-        pending[currentWeek][gameId] = { pick: awayName || pick, user: currentUser };
       } else {
         console.warn("Pick não corresponde a nomes/abrev. deste card:", gameId, pick, {homeName, awayName});
       }
     }
   });
 }
+
+
 
 async function fetchSavedAndApply() {
   if (!currentUser) return;
@@ -264,7 +211,6 @@ async function fetchSavedAndApply() {
     const res = await fetch(url, { method: "GET" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    // data includes user name from backend as "user"
     applySavedPicks(data);
   } catch (e) {
     console.error("Falha ao buscar/aplicar palpites salvos:", e);
