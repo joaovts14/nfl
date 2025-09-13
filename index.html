@@ -29,13 +29,23 @@
     .choose-winner button:hover { background:#666; }
     .choose-winner .draw-btn { flex:1; text-align:center; margin:0 10px; }
   
-    .game-card.finished { 
+    .game-card.finished {
+      /* keeps previous final highlight */ 
       background: #1f2633; 
       border: 1px solid #3b82f6; 
       box-shadow: 0 0 0 2px rgba(59,130,246,0.25) inset;
       opacity: 0.95;
     }
     .game-card.finished .status { color: #93c5fd; font-weight: bold; }
+    
+    .game-card.correct {
+      border-color: #22c55e;          /* green */
+      box-shadow: 0 0 0 2px rgba(34,197,94,0.35) inset;
+    }
+    .game-card.wrong {
+      border-color: #ef4444;          /* red */
+      box-shadow: 0 0 0 2px rgba(239,68,68,0.35) inset;
+    }
     </style>
   <script defer src="./script.js"></script>
 </head>

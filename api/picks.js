@@ -46,36 +46,21 @@ module.exports = async (req, res) => {
 
   if (req.method === "POST") {
     try {
-      const payload = Array.isArray(req.body) ? req.body : [req.body];
-      const client = await pool.connect();
-      try {
-        await client.query("BEGIN");
-        const text = `
-          INSERT INTO picks (week, game_id, user_name, pick)
-          VALUES ($1, $2, $3, $4)
-          ON CONFLICT (week, game_id, user_name)
-          DO UPDATE SET pick = EXCLUDED.pick, updated_at = NOW()
-          RETURNING week, game_id, user_name, pick, updated_at
-        `;
-        const results = [];
-        for (const item of payload) {
-          const { week, gameId, user, pick } = item || {};
-          if (!week || !gameId || !user || !pick) continue;
-          const r = await client.query(text, [week, String(gameId), String(user), String(pick)]);
-          results.push(r.rows[0]);
-        }
-        await client.query("COMMIT");
-        return res.status(200).json({ saved: results.length, rows: results });
-      } catch (e) {
-        await client.query("ROLLBACK");
-        console.error(e);
-        return res.status(500).json({ error: "db_error" });
-      } finally {
-        client.release();
+      const { week, gameId, user, pick } = req.body || {};
+      if (!week || !gameId || !user || !pick) {
+        return res.status(400).json({ error: "invalid_payload" });
       }
+      await pool.query(
+        `INSERT INTO picks(week, game_id, user_name, pick)
+         VALUES($1,$2,$3,$4)
+         ON CONFLICT (week, game_id, user_name)
+         DO UPDATE SET pick = EXCLUDED.pick, updated_at = NOW()`,
+        [Number(week), String(gameId), String(user), String(pick)]
+      );
+      return res.status(200).json({ ok: true });
     } catch (e) {
       console.error(e);
-      return res.status(400).json({ error: "invalid_payload" });
+      return res.status(500).json({ error: "db_error" });
     }
   }
 

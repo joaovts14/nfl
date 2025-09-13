@@ -110,6 +110,7 @@ function setWinner(gameId, teamName, btn) {
   btns.forEach(b=>b.classList.remove('selected'));
   (isHome ? btns[0] : btns[btns.length-1])?.classList.add('selected');
   savePick(gameId, teamName);
+  evaluateCard(card);
 }
 
 function setDraw(gameId, btn) {
@@ -119,6 +120,7 @@ function setDraw(gameId, btn) {
   btns.forEach(b=>b.classList.remove('selected'));
   card.querySelector('.draw-btn button')?.classList.add('selected');
   savePick(gameId, "Empate");
+  evaluateCard(card);
 
 }
 document.getElementById("prevWeek").addEventListener("click", () => {
@@ -191,6 +193,7 @@ async function fetchSavedAndApply() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     applySavedPicks(data);
+    evaluateAll();
   } catch (e) {
     console.error("Falha ao buscar/aplicar palpites salvos:", e);
   }
@@ -203,3 +206,42 @@ document.getElementById("backHome")?.addEventListener("click", () => {
   resetPendingAll();
   currentUser = null;
 });
+
+function evaluateCard(card) {
+  if (!card || !card.classList.contains("finished")) return;
+
+  const homeName = card.querySelector(".home .team-name")?.textContent?.trim();
+  const awayName = card.querySelector(".away .team-name")?.textContent?.trim();
+  const hs = parseInt(card.querySelector(".home .score")?.textContent || "-1", 10);
+  const as = parseInt(card.querySelector(".away .score")?.textContent || "-1", 10);
+
+  let actual = null;
+  if (!Number.isNaN(hs) && !Number.isNaN(as)) {
+    if (hs === as) actual = "Empate";
+    else actual = (hs > as) ? homeName : awayName;
+  }
+
+  // qual pick o usuário escolheu?
+  let picked = null;
+  const homeBtn = card.querySelector(".choose-winner button:nth-child(1)");
+  const drawBtn = card.querySelector(".choose-winner .draw-btn button");
+  const awayBtn = card.querySelector(".choose-winner button:last-child");
+
+  if (drawBtn && drawBtn.classList.contains("selected")) picked = "Empate";
+  else if (homeBtn && homeBtn.classList.contains("selected")) picked = homeName;
+  else if (awayBtn && awayBtn.classList.contains("selected")) picked = awayName;
+
+  // limpa classes
+  card.classList.remove("correct", "wrong");
+
+  // só colore se temos resultado e pick
+  if (actual && picked) {
+    if (picked === actual) card.classList.add("correct");
+    else card.classList.add("wrong");
+  }
+}
+
+function evaluateAll() {
+  document.querySelectorAll(".game-card").forEach(evaluateCard);
+}
+
