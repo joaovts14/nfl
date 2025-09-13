@@ -54,6 +54,9 @@ async function loadData() {
 
       container.appendChild(game);
     });
+
+    // Após renderizar os cards, buscar e aplicar palpites salvos automaticamente
+    await fetchSavedAndApply();
   } catch (err) {
     console.error("Erro ao buscar dados:", err);
     document.getElementById("scoreboard").innerHTML = "<p>Não foi possível carregar os dados.</p>";
@@ -252,5 +255,19 @@ function applySavedPicks(rows) {
       }
     }
   });
+}
+
+async function fetchSavedAndApply() {
+  if (!currentUser) return;
+  try {
+    const url = `${API_BASE}?week=${encodeURIComponent(currentWeek)}&user=${encodeURIComponent(currentUser)}`;
+    const res = await fetch(url, { method: "GET" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    // data includes user name from backend as "user"
+    applySavedPicks(data);
+  } catch (e) {
+    console.error("Falha ao buscar/aplicar palpites salvos:", e);
+  }
 }
 
