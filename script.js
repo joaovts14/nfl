@@ -134,3 +134,22 @@ document.getElementById("save").addEventListener("click", async () => {
     console.error("Falha salvando lote:", e);
   }
 });
+
+// === Ver salvos: busca no backend e imprime no console ===
+async function viewSaved() {
+  if (!currentUser) {
+    console.warn("Nenhum usuário selecionado.");
+    return;
+  }
+  try {
+    const url = `${API_BASE}?week=${encodeURIComponent(currentWeek)}&user=${encodeURIComponent(currentUser)}`;
+    const res = await fetch(url, { method: "GET" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    console.log("📦 Dados salvos para", { user: currentUser, week: currentWeek }, data);
+  } catch (e) {
+    console.error("Falha ao buscar salvos:", e);
+  }
+}
+
+document.getElementById("viewSaved")?.addEventListener("click", viewSaved);
