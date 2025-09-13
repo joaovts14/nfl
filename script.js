@@ -119,24 +119,14 @@ function setDraw(gameId, btn) {
   btns.forEach(b=>b.classList.remove('selected'));
   card.querySelector('.draw-btn button')?.classList.add('selected');
   savePick(gameId, "Empate");
-}
 
+}
 document.getElementById("prevWeek").addEventListener("click", () => {
   if (currentWeek > 1) { currentWeek--; pending[currentWeek] = {}; loadData(); }
 });
 document.getElementById("nextWeek").addEventListener("click", () => {
   currentWeek++; pending[currentWeek] = {}; loadData();
 });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    console.log("💾 lote salvo:", JSON.stringify(payload, null, 2));
-    delete pending[currentWeek];
-  } catch (e) {
-    console.error("Falha salvando lote:", e);
-  }
-});
-
-// === Ver salvos: busca no backend e imprime no console ===
-
 
 /**
  * Aplica picks salvos nos cards da UI.
@@ -213,4 +203,3 @@ document.getElementById("backHome")?.addEventListener("click", () => {
   resetPendingAll();
   currentUser = null;
 });
-
