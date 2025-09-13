@@ -105,7 +105,75 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .muted { opacity:.75; }
-    </style>
+    
+/* ===== Mobile adjustments (<=640px) ===== */
+@media (max-width: 640px) {
+  body { padding: 12px; }
+  h1 { font-size: clamp(1.25rem, 6vw, 1.6rem); margin-bottom: 14px; }
+  h2 { font-size: clamp(1rem, 4.8vw, 1.2rem); }
+
+  /* User select */
+  #userSelect { margin-top: 40px; }
+  #userSelect button {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    margin: 8px auto;
+    font-size: 1rem;
+    padding: 10px 14px;
+    border-radius: 10px;
+  }
+
+  /* Week nav + tags */
+  .week-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .week-nav button { width: 100%; margin: 0; font-size: .95rem; padding: 10px 12px; }
+  .tag { display:block; text-align:center; font-size: 1rem; margin: 4px 0 0 0; }
+
+  /* Scoreboard/game list */
+  .scoreboard { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .game-card { padding: 12px; border-radius: 12px; }
+  .game-card .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+  .game-card .team { display:flex; align-items:center; gap: 8px; }
+  .game-card .team .logo { width: 28px; height: 28px; }
+  .game-card .team .team-name { font-size: .95rem; word-break: break-word; }
+  .game-card .score { font-size: 1.2rem; text-align: center; }
+
+  /* Winner chooser */
+  .choose-winner { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .choose-winner button { width: 100%; padding: 10px 8px; border-radius: 10px; font-size: .95rem; }
+  .draw-btn { grid-column: 1 / -1; } /* if draw is a single centered button, span full width */
+
+  /* Finished states & correctness badges */
+  .game-card.finished { border-width: 1px; }
+  .game-card.correct, .game-card.wrong { box-shadow: none; }
+
+  /* Back button / home / global scores */
+  #backHome, #openGlobalScores, #backToHome {
+    width: 100%;
+    max-width: 360px;
+    margin: 8px auto;
+    display: block;
+    font-size: 1rem;
+    padding: 10px 14px;
+    border-radius: 10px;
+  }
+
+  /* Ranking card */
+  #globalScoreView { margin: 12px auto; }
+  .rank-card { border-radius: 14px; }
+  .rank-header { padding: 12px 14px; }
+  .rank-title { font-size: 1.05rem; }
+  .rank-subtle { font-size: .8rem; }
+  .rank-body { padding: 8px 12px 12px; }
+  table.rank-table th, table.rank-table td { padding: 10px 8px; font-size: .95rem; }
+  .medal { width: 22px; }
+
+  /* Loader */
+  .loader-wrap { padding: 16px; }
+  .spinner { width: 28px; height: 28px; border-width: 3px; margin-right: 8px; }
+}
+
+  </style>
   <script defer src="./script.js"></script>
 </head>
 <body>
