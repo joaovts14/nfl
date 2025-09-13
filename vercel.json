@@ -1,11 +1,8 @@
 {
-  "version":2,
-  "builds":[
-    {"src":"api/*.js","use":"@vercel/node"},
-    {"src":"frontend/**","use":"@vercel/static"}
-  ],
-  "routes":[
-    {"src":"/api/.*","dest":"/api/picks.js"},
-    {"src":"/(.*)","dest":"/frontend/index.html"}
+  "routes": [
+    { "src": "^/api/picks$", "dest": "/api/picks.js" },
+    { "src": "^/api/hello$", "dest": "/api/hello.js" },
+    { "src": "^/(.*)\\.(js|css|png|jpg|svg)$", "dest": "/$1.$2" },
+    { "src": "^(?!/api/).*$", "dest": "/index.html" }
   ]
 }
