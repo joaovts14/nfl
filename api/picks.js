@@ -16,33 +16,24 @@ module.exports = async (req, res) => {
   cors(res);
   if (req.method === "OPTIONS") return res.status(200).end();
 
-if (req.method === "GET") {
-  const { week, user } = req.query || {};
-  if (!week) {
-    return res.status(400).json({ error: "week obrigatório" });
-  }
-  try {
-    let query = `
-      SELECT week, game_id, user_name AS "user", pick, updated_at
-      FROM picks
-      WHERE week = $1
-    `;
-    const params = [Number(week)];
-
-    if (user) {
-      query += " AND user_name = $2";
-      params.push(String(user));
+  if (req.method === "GET") {
+    const week = parseInt((req.query && req.query.week) || "0", 10);
+    if (!week) return res.status(400).json({ error: "week obrigatório" });
+    try {
+      const { rows } = await pool.query(
+        `SELECT week, game_id, user_name, pick, updated_at
+         FROM picks
+         WHERE week = $1
+         ORDER BY game_id, user_name`,
+        [week]
+      );
+      return res.status(200).json(rows);
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({ error: "db_error" });
     }
-
-    query += " ORDER BY game_id, user_name";
-
-    const { rows } = await pool.query(query, params);
-    return res.status(200).json(rows);
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({ error: "db_error" });
   }
-}
+
   if (req.method === "POST") {
     try {
       const payload = Array.isArray(req.body) ? req.body : [req.body];

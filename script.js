@@ -30,7 +30,12 @@ async function loadData() {
 
       const game = document.createElement("div");
       game.className = "game-card";
+      // se jogo finalizado, adicionar classe finished
+      if (comp.status?.type?.state === 'post') { game.classList.add('finished'); }
       game.dataset.gameId = event.id;
+      const st = comp?.status?.type || {};
+      const isFinal = !!(st.completed || st.state === 'post' || /final/i.test(st.description||'') || /final/i.test(st.detail||''));
+      if (isFinal) game.classList.add('finished');
 
       game.innerHTML = `
         <div class="teams">
@@ -122,22 +127,6 @@ document.getElementById("prevWeek").addEventListener("click", () => {
 document.getElementById("nextWeek").addEventListener("click", () => {
   currentWeek++; pending[currentWeek] = {}; loadData();
 });
-document.getElementById("save").addEventListener("click", async () => {
-  const pack = pending[currentWeek] || {};
-  const entries = Object.entries(pack);
-  if (!entries.length) {
-    console.log("Nada a salvar. 👍");
-    return;
-  }
-  const payload = entries.map(([gameId, v]) => ({
-    week: currentWeek, gameId, user: currentUser, pick: v.pick
-  }));
-  try {
-    const res = await fetch(API_BASE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     console.log("💾 lote salvo:", JSON.stringify(payload, null, 2));
     delete pending[currentWeek];
@@ -216,4 +205,12 @@ async function fetchSavedAndApply() {
     console.error("Falha ao buscar/aplicar palpites salvos:", e);
   }
 }
+
+// Voltar para tela inicial
+document.getElementById("backHome")?.addEventListener("click", () => {
+  document.getElementById("mainApp").style.display = "none";
+  document.getElementById("userSelect").style.display = "block";
+  resetPendingAll();
+  currentUser = null;
+});
 

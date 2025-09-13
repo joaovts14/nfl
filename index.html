@@ -28,7 +28,15 @@
     .choose-winner button { padding:10px 18px; background:#444; border:1px solid #777; border-radius:6px; cursor:pointer; color:#fff; font-size:.95rem; min-width:90px; }
     .choose-winner button:hover { background:#666; }
     .choose-winner .draw-btn { flex:1; text-align:center; margin:0 10px; }
-  </style>
+  
+    .game-card.finished { 
+      background: #1f2633; 
+      border: 1px solid #3b82f6; 
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.25) inset;
+      opacity: 0.95;
+    }
+    .game-card.finished .status { color: #93c5fd; font-weight: bold; }
+    </style>
   <script defer src="./script.js"></script>
 </head>
 <body>
@@ -41,10 +49,10 @@
   </div>
   <div id="mainApp">
     <div class="week-nav">
+      <button id="backHome">⬅️ Voltar</button>
       <button id="prevWeek">⬅️ Semana Anterior</button>
       <span id="weekLabel">Semana 1 <span id="whoTag" class="tag"></span></span>
       <button id="nextWeek">Próxima Semana ➡️</button>
-      <button id="save">💾 Salvar</button>
     </div>
     <div id="scoreboard" class="scoreboard"></div>
   </div>
