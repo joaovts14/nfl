@@ -9,7 +9,7 @@ function selectUser(user) {
   currentUser = user;
   document.getElementById("userSelect").style.display = "none";
   document.getElementById("mainApp").style.display = "block";
-  document.getElementById("whoTag").textContent = `• Usuário: ${currentUser}`;
+  document.getElementById("whoTag").textContent = ` ${currentUser}`;
   resetPendingAll();
   loadData();
 }
