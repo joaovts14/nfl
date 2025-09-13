@@ -1,0 +1,10 @@
+body{font-family:sans-serif;background:#10121a;color:#f1f1f1;margin:0;padding:0}
+header{padding:12px;background:#181b25;display:flex;gap:10px;align-items:center}
+h1{margin:0 20px 0 0;font-size:18px}
+label{display:flex;gap:6px;align-items:center}
+select{padding:4px;border-radius:4px;background:#10121a;color:#f1f1f1;border:1px solid #444}
+#gamesContainer{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:10px}
+.game-card{background:#1a1d2d;padding:12px;border-radius:8px;display:flex;flex-direction:column;gap:8px}
+.teams{display:flex;gap:8px}
+.team-btn{flex:1;padding:10px;border-radius:6px;border:1px solid #444;background:#10121a;color:#fff;cursor:pointer}
+.team-btn.selected{background:#2a45ff;border-color:#2a45ff}

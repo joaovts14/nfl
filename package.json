@@ -1,0 +1,8 @@
+{
+  "name":"nfl-picks-vercel",
+  "private":true,
+  "version":"1.0.0",
+  "dependencies":{
+    "pg":"^8.12.0"
+  }
+}
