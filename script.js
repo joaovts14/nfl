@@ -225,7 +225,7 @@ function evaluateCard(card) {
   let picked = null;
   const homeBtn = card.querySelector(".choose-winner button:nth-child(1)");
   const drawBtn = card.querySelector(".choose-winner .draw-btn button");
-  const awayBtn = card.querySelector(".choose-winner button:last-child");
+  const awayBtn = card.querySelector(".choose-winner").children[2];
 
   if (drawBtn && drawBtn.classList.contains("selected")) picked = "Empate";
   else if (homeBtn && homeBtn.classList.contains("selected")) picked = homeName;
