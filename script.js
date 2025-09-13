@@ -154,7 +154,7 @@ async function applySavedPicks(rows) {
     const awayName = card.querySelector(".away .team-name")?.textContent?.trim();
     const homeBtn = card.querySelector(".choose-winner button:nth-child(1)");
     const drawBtn = card.querySelector(".choose-winner .draw-btn button");
-    const awayBtn = card.querySelector(".choose-winner button:last-child");
+    const awayBtn = card.querySelector(".choose-winner").children[2];
 
     // limpeza visual
     [homeBtn, drawBtn, awayBtn].forEach(b => b && b.classList.remove("selected"));
