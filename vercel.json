@@ -2,6 +2,7 @@
   "routes": [
     { "src": "^/api/picks$", "dest": "/api/picks.js" },
     { "src": "^/api/hello$", "dest": "/api/hello.js" },
+    { "src": "^/(.*)\\.(js|css|png|jpg|svg)$", "dest": "/$1.$2" },
     { "src": "^(?!/api/).*$", "dest": "/index.html" }
   ]
 }
