@@ -220,6 +220,9 @@ function evaluateCard(card) {
     if (hs === as) actual = "Empate";
     else actual = (hs > as) ? homeName : awayName;
   }
+  if(hs == 0 && as == 0){
+    return
+  }
 
   // qual pick o usuário escolheu?
   let picked = null;
