@@ -208,7 +208,7 @@ document.getElementById("backHome")?.addEventListener("click", () => {
 });
 
 function evaluateCard(card) {
-  if (!card || !card.classList.contains("finished")) return;
+  if (!card) return;
 
   const homeName = card.querySelector(".home .team-name")?.textContent?.trim();
   const awayName = card.querySelector(".away .team-name")?.textContent?.trim();
