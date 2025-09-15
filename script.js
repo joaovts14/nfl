@@ -35,7 +35,12 @@ async function loadData() {
       game.dataset.gameId = event.id;
       const st = comp?.status?.type || {};
       const isFinal = !!(st.completed || st.state === 'post' || /final/i.test(st.description||'') || /final/i.test(st.detail||''));
-      if (isFinal) game.classList.add('finished');
+      if (isFinal){
+        game.classList.add('finished');
+        dis = "disabled";
+      }else{
+        dis = "";
+      }
 
       game.innerHTML = `
         <div class="teams">
@@ -53,9 +58,9 @@ async function loadData() {
         </div>
         <div class="status">${comp.status?.type?.detail || ""}</div>
         <div class="choose-winner">
-          <button onclick="setWinner('${event.id}', '${teams[0].team.displayName}', this)">${teams[0].team.abbreviation}</button>
-          <div class="draw-btn"><button onclick="setDraw('${event.id}', this)">Empate</button></div>
-          <button onclick="setWinner('${event.id}', '${teams[1].team.displayName}', this)">${teams[1].team.abbreviation}</button>
+          <button ${dis} onclick="setWinner('${event.id}', '${teams[0].team.displayName}', this)">${teams[0].team.abbreviation}</button>
+          <div class="draw-btn"><button  ${dis}  onclick="setDraw('${event.id}', this)">Empate</button></div>
+          <button   ${dis}  onclick="setWinner('${event.id}', '${teams[1].team.displayName}', this)">${teams[1].team.abbreviation}</button>
         </div>
       `;
 
