@@ -90,7 +90,7 @@ function rowEl(game, resultsMap){
       acertou.innerHTML = info.list.map(n => `<span class="ok">${n}</span>`).join(" ");
     }
   } else if (info.status === "in_progress"){
-    status.innerHTML = `<span class="pending">Em andamento</span>`;
+    status.innerHTML = `<span class="pending">Pendente</span>`;
     winner.textContent = "—";
     acertou.textContent = "—";
   } else {
