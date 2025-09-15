@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Apostas por Jogo • NFL</title>
+  <title>Resumo de Divergências • NFL</title>
   <link rel="stylesheet" href="./style.css">
   <style>
     body { background:#0b0b0b; color:#fff; font-family: Arial, sans-serif; margin:0; padding:16px; }
@@ -16,15 +16,19 @@
     .week-block { margin-bottom:18px; background:#141414; border:1px solid #222; border-radius:12px; overflow:hidden; }
     .week-title { padding:10px 14px; background:#111; border-bottom:1px solid #222; color:#ffcc00; font-weight:bold; }
     .games { display:flex; flex-direction:column; }
-    .game-row { display:grid; grid-template-columns: 1fr repeat(3, 1fr); gap:8px; padding:10px 14px; border-top:1px solid #222; }
+    .game-row { display:grid; grid-template-columns: 1fr repeat(3, 1fr) 110px 160px 1fr; gap:8px; padding:10px 14px; border-top:1px solid #222; align-items:center; }
     .game-row:nth-child(odd) { background:#0f0f0f; }
-    .game-head { display:grid; grid-template-columns: 1fr repeat(3, 1fr); gap:8px; padding:10px 14px; background:#0d0d0d; border-top:1px solid #222; color:#aaa; font-weight:bold; position:sticky; top:0; z-index:2; }
+    .game-head { display:grid; grid-template-columns: 1fr repeat(3, 1fr) 110px 160px 1fr; gap:8px; padding:10px 14px; background:#0d0d0d; border-top:1px solid #222; color:#aaa; font-weight:bold; position:sticky; top:0; z-index:2; }
     .pill { display:inline-block; padding:4px 8px; border-radius:999px; background:#222; color:#ddd; font-size:0.85rem; }
     .muted { color:#aaa; }
-    .empty { color:#666; font-style:italic; }
-    @media (max-width: 768px) {
+    .empty { color:#666; font-style:italic; padding:10px 14px; }
+    .ok { background:#103d19; color:#9cffbf; border-radius:6px; padding:2px 6px; display:inline-block; }
+    .warn { background:#402; color:#f8a; border-radius:6px; padding:2px 6px; display:inline-block; }
+    .final { color:#9cffbf; }
+    .pending { color:#f6d365; }
+    @media (max-width: 900px) {
       .game-head, .game-row { grid-template-columns: 1fr; }
-      .labels { display:grid; grid-template-columns: 100px 1fr; gap:6px; }
+      .labels { display:grid; grid-template-columns: 130px 1fr; gap:6px; }
       .labels div { padding:2px 0; }
     }
   </style>
@@ -45,6 +49,6 @@
     <div id="content"></div>
   </div>
 
-  <script src="./apostas.js"></script>
+  <script src="./resumo.js"></script>
 </body>
 </html>
